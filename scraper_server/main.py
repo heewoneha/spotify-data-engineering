@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict
 
 
 app = FastAPI()
