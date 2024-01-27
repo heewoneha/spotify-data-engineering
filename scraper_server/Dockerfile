@@ -12,7 +12,7 @@ RUN pip install --upgrade pip && \
 
 RUN if [ ! -d "/static" ]; then mkdir /static; fi
 
-COPY . .
+COPY scraper_server/. .
 
 EXPOSE 8000
 
