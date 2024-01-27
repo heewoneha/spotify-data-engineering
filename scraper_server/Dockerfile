@@ -6,7 +6,7 @@ ENV FastAPI_ENV=production
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY scraper_server/requirements.txt .
 RUN pip install --upgrade pip && \
     pip install -r ./requirements.txt
 
