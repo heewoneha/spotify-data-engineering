@@ -18,6 +18,11 @@ jobs:
       env:
         DOCKER_USER: ${{secrets.DOCKER_USER}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        SPOTIFY_CLIENT_ID: ${{secrets.SPOTIFY_CLIENT_ID}}
+        SPOTIFY_CLIENT_SECRET: ${{secrets.SPOTIFY_CLIENT_SECRET}}
+        AZURE_BLOB_ACCOUNT_NAME: ${{secrets.AZURE_BLOB_ACCOUNT_NAME}}
+        AZURE_BLOB_ACCOUNT_KEY: ${{secrets.AZURE_BLOB_ACCOUNT_KEY}}
+        AZURE_BLOB_CONTAINER_NAME: ${{secrets.AZURE_BLOB_CONTAINER_NAME}}
       run: |
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: Build the Docker image
