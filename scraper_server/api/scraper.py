@@ -30,15 +30,25 @@ async def top50_playlist_scrape_jobs():
             client_id=client_id,
             client_secret=client_secret
         )
-        result = await scraper.main()
+        track_info, track_audio_features = await scraper.main()
 
         azure_blob_account_name = os.getenv('AZURE_BLOB_ACCOUNT_NAME')
         azure_blob_account_key = os.getenv('AZURE_BLOB_ACCOUNT_KEY')
         azure_blob_container_name = os.getenv('AZURE_BLOB_CONTAINER_NAME')
 
-        file_path = PlaylistScraper.save_json(result)
+        file_path = PlaylistScraper.save_json('top50_tracks_info', track_info)
         PlaylistScraper.upload_to_blob(
             file_path=file_path,
+            blob_file_name='tracks_info',
+            account_name=azure_blob_account_name,
+            account_key=azure_blob_account_key,
+            container_name=azure_blob_container_name
+        )
+
+        file_path = PlaylistScraper.save_json('top50_audio_features', track_audio_features)
+        PlaylistScraper.upload_to_blob(
+            file_path=file_path,
+            blob_file_name='audio_features',
             account_name=azure_blob_account_name,
             account_key=azure_blob_account_key,
             container_name=azure_blob_container_name
@@ -47,9 +57,9 @@ async def top50_playlist_scrape_jobs():
         end_time = time.time()
         scraped_time = end_time - start_time
         
-        print(f'took {scraped_time} seconds to scrape {len(result)} tracks and upload to Blob')
+        print(f'took {scraped_time} seconds to scrape {len(track_audio_features)} tracks and upload to Blob')
 
-        return {"message": f"Scraped {len(result)} tracks and uploaded to Blob successfully!"}
+        return {"message": f"Scraped {len(track_audio_features)} tracks and uploaded to Blob successfully!"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

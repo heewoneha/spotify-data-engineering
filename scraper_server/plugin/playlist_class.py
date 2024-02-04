@@ -47,8 +47,7 @@ class PlaylistScraper:
             return data
 
 
-    ### 가수명, 노래 제목, 발매일, track 순서(순위)는 추후에 추가 ###
-    async def get_track_lists_from_top50_playlist(self, session):
+    async def get_track_lists_from_playlist(self, session):
         top50_playlist_url = f'{self.base_url}/playlists/{self.playlist_uri}/tracks'
 
         track_ids = []
@@ -58,10 +57,23 @@ class PlaylistScraper:
         )
         track_ids.extend([track['track']['id'] for track in result['items']])
 
-        return track_ids
-    
+        track_info = []
+        index = 0
+        for track in result['items']:
+            index += 1
+            val = {
+                'track_id': track['track']['id'],
+                'track_name': track['track']['name'],
+                'artists_name': [artist["name"] for artist in track["track"]["artists"]],
+                'album_release_date': track['track']['album']['release_date'],
+                'track_number_in_playlist': index
+            }
+            track_info.append(val)
 
-    async def get_track_audio_features(self, session, track_id):
+        return track_ids, track_info
+
+
+    async def get_audio_features_from_track(self, session, track_id):
         track_info_url = f'{self.base_url}/audio-features/{track_id}'
         
         result = await self.fetch_data_from_api(
@@ -88,23 +100,23 @@ class PlaylistScraper:
 
         self.track_audio_features.append(val)
         await asyncio.sleep(2)
-    
-    
+
+
     async def main(self):
         await self.fetch_api_token()
 
         async with aiohttp.ClientSession() as session:
-            track_id_lists = await self.get_track_lists_from_top50_playlist(session)
-            tasks = [self.get_track_audio_features(session, track_id) for track_id in track_id_lists]
+            track_id_list, track_info = await self.get_track_lists_from_playlist(session)
+            tasks = [self.get_audio_features_from_track(session, track_id) for track_id in track_id_list]
             await asyncio.gather(*tasks)
 
-        return self.track_audio_features
+        return track_info, self.track_audio_features
 
 
     @staticmethod
-    def save_json(total_top50_tracks):
-        file_path = './static/top50.json'
-        result = {'results': total_top50_tracks}
+    def save_json(file_name, results):
+        file_path = f'./static/{file_name}.json'
+        result = {'results': results}
 
         with open(file_path, 'w', encoding='utf-8') as json_file:
             json.dump(result, json_file, ensure_ascii=False, indent=4)
@@ -113,13 +125,13 @@ class PlaylistScraper:
     
 
     @staticmethod
-    def upload_to_blob(file_path, account_name, account_key, container_name):
+    def upload_to_blob(file_path, blob_file_name, account_name, account_key, container_name):
         today = date.today()
         year = str(today.year)
         month = str(today.month).zfill(2)
         day = str(today.day).zfill(2)
 
-        blob_path = f'top50/year={year}/month={month}/day={day}/top50.json'
+        blob_path = f'top50/year={year}/month={month}/day={day}/{blob_file_name}.json'
 
         blob_service_client = BlobServiceClient(
             account_url=f"https://{account_name}.blob.core.windows.net",
