@@ -2,18 +2,38 @@ from base64 import b64encode
 from datetime import date
 from azure.storage.blob import BlobServiceClient
 import aiohttp
-import asyncio
 import json
 
 
-class PlaylistScraper:
-    def __init__(self, base_url, playlist_uri, client_id, client_secret):
+class ArtistTopTrackScraper:
+    kpop_girl_group_category_dict = {
+        'EXID': '1xs6WFotNQSXweo0GXrS0O',
+        'TWICE': '7n2Ycct7Beij7Dj7meI4X0',
+        'BLACKPINK': '41MozSoPIsD1dJM0CLPjZF',
+        'MAMAMOO': '0XATRDCYuuGhk0oE7C0o5G',
+        'Red Velvet': '1z4g3DjTBBZKhvAroFlhOM',
+        'OH MY GIRL': '2019zR22qK2RBvCqtudBaI',
+        'fromis_9': '24nUVBIlCGi4twz4nYxJum',
+        '(G)I-DLE': '2AfmfGFbe0A0WsTYm0SDTx',
+        'ITZY': '2KC9Qb60EaY0kW4eH68vr3',
+        'STAYC': '01XYiBYaoMJcNhPokrg0l0',
+        'aespa': '6YVMFz59CuY7ngCxTxjpxE',
+        'IVE': '6RHTUrRF63xao58xh9FXYJ',
+        'NMIXX': '28ot3wh4oNmoFOdVajibBl',
+        'VIVIZ': '7Lq3yAtwi0Z7zpxEwbQQNZ',
+        'LE SSERAFIM': '4SpbR6yFEvexJuaBpgAU5p',
+        'New Jeans': '6HvZYsbFfjnjFrWF950C9d'
+    }
+
+    def __init__(self, base_url, artist_name, artist_id, country_code, client_id, client_secret):
         self.base_url = base_url
-        self.playlist_uri = playlist_uri
+        self.artist_name = artist_name
+        self.artist_id = artist_id
+        self.country_code = country_code
         self.client_id = client_id
         self.client_secret = client_secret
         self.access_token = ''
-        self.track_audio_features = []
+        self.kpop_girl_group_track_info = []
 
 
     async def fetch_api_token(self):
@@ -32,12 +52,12 @@ class PlaylistScraper:
                     print(f'Access Token Error {response.status}, {await response.text()}')
 
 
-    async def fetch_data_from_api(self, session, api_url):
+    async def fetch_data_from_api(self, session, params, api_url):
         headers = {
             'Authorization': f'Bearer {self.access_token}'
         }
 
-        async with session.get(api_url, headers=headers) as response:
+        async with session.get(api_url, headers=headers, params=params) as response:
             if response.status != 200:
                 print(f'Error occurred: {response.status} {response}')
                 return {}
@@ -47,70 +67,43 @@ class PlaylistScraper:
             return data
 
 
-    async def get_track_lists_from_playlist(self, session):
-        top50_playlist_url = f'{self.base_url}/playlists/{self.playlist_uri}/tracks'
+    async def get_track_info_from_artist_top_tracks(self, session):
+        artist_top_tracks_url = f'{self.base_url}/artists/{self.artist_id}/top-tracks'
 
-        track_ids = []
+        params = {
+            'market': self.country_code
+        }
+
         result = await self.fetch_data_from_api(
             session,
-            top50_playlist_url
+            params,
+            artist_top_tracks_url
         )
-        track_ids.extend([track['track']['id'] for track in result['items']])
 
         track_info = []
-        index = 0
-        for track in result['items']:
-            index += 1
+        for track in result['tracks']:
             val = {
-                'track_id': track['track']['id'],
-                'track_name': track['track']['name'],
-                'artists_name': [artist['name'] for artist in track['track']['artists']],
-                'album_release_date': track['track']['album']['release_date'],
-                'track_number_in_playlist': index
+                'track_id': track['id'],
+                'track_name': track['name'],
+                'group_name': self.artist_name,
+                'group_id': self.artist_id,
+                'artists_name': [artist['name'] for artist in track['artists']],
+                'album_release_date': track['album']['release_date'],
+                'track_popularity': track['popularity'],
+                'duration_ms': track['duration_ms']
             }
             track_info.append(val)
 
-        return track_ids, track_info
-
-
-    async def get_audio_features_from_track(self, session, track_id):
-        track_info_url = f'{self.base_url}/audio-features/{track_id}'
-        
-        result = await self.fetch_data_from_api(
-            session,
-            track_info_url
-        )
-
-        val = {
-            'track_id': track_id,
-            'acousticness': result['acousticness'],
-            'danceability': result['danceability'],
-            'duration_ms': result['duration_ms'],
-            'energy': result['energy'],
-            'instrumentalness': result['instrumentalness'],
-            'key': result['key'],
-            'liveness': result['liveness'],
-            'loudness': result['loudness'],
-            'mode': result['mode'],
-            'speechiness': result['speechiness'],
-            'tempo': result['tempo'],
-            'time_signature': result['time_signature'],
-            'valence': result['valence']
-        }
-
-        self.track_audio_features.append(val)
-        await asyncio.sleep(2)
+        self.kpop_girl_group_track_info.extend(track_info)
 
 
     async def main(self):
         await self.fetch_api_token()
-
+        
         async with aiohttp.ClientSession() as session:
-            track_id_list, track_info = await self.get_track_lists_from_playlist(session)
-            tasks = [self.get_audio_features_from_track(session, track_id) for track_id in track_id_list]
-            await asyncio.gather(*tasks)
+            await self.get_track_info_from_artist_top_tracks(session)
 
-        return track_info, self.track_audio_features
+        return self.kpop_girl_group_track_info
 
 
     @staticmethod
@@ -131,7 +124,7 @@ class PlaylistScraper:
         month = str(today.month).zfill(2)
         day = str(today.day).zfill(2)
 
-        blob_path = f'top50/year={year}/month={month}/day={day}/{blob_file_name}.json'
+        blob_path = f'group/year={year}/month={month}/day={day}/{blob_file_name}.json'
 
         blob_service_client = BlobServiceClient(
             account_url=f"https://{account_name}.blob.core.windows.net",
