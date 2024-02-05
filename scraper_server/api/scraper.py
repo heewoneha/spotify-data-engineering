@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.staticfiles import StaticFiles
 from plugin.playlist_class import PlaylistScraper
-from plugin.artist_top_track_class import ArtistTopTrackScraper
+from plugin.artist_track_class import ArtistTrackScraper
 import os
 import asyncio
 import time
@@ -74,8 +74,8 @@ async def kpop_girl_group_tracks_scrape_jobs():
         start_time = time.time()
 
         tasks = []
-        for artist_name, artist_id in ArtistTopTrackScraper.kpop_girl_group_category_dict.items():
-            scraper = ArtistTopTrackScraper(
+        for artist_name, artist_id in ArtistTrackScraper.kpop_girl_group_category_dict.items():
+            scraper = ArtistTrackScraper(
                 base_url=base_url,
                 artist_name=artist_name,
                 artist_id=artist_id,
@@ -86,18 +86,33 @@ async def kpop_girl_group_tracks_scrape_jobs():
             task = scraper.main()
             tasks.append(task)
         
-        data_list = await asyncio.gather(*tasks)
+        results = await asyncio.gather(*tasks)
+        
+        artist_data_list, track_data_list = zip(*results)
+
+        kpop_girl_group_artist_info = []
+        for artist_sub_list in artist_data_list:
+            kpop_girl_group_artist_info.extend(artist_sub_list)
 
         kpop_girl_group_track_info = []
-        for sub_list in data_list:
-            kpop_girl_group_track_info.extend(sub_list)
+        for track_sub_list in track_data_list:
+            kpop_girl_group_track_info.extend(track_sub_list)
 
         azure_blob_account_name = os.getenv('AZURE_BLOB_ACCOUNT_NAME')
         azure_blob_account_key = os.getenv('AZURE_BLOB_ACCOUNT_KEY')
         azure_blob_container_name = os.getenv('AZURE_BLOB_CONTAINER_NAME')
 
-        file_path = ArtistTopTrackScraper.save_json('kpop_girl_group_track_info', kpop_girl_group_track_info)
-        ArtistTopTrackScraper.upload_to_blob(
+        file_path = ArtistTrackScraper.save_json('kpop_girl_group_artist_info', kpop_girl_group_artist_info)
+        ArtistTrackScraper.upload_to_blob(
+            file_path=file_path,
+            blob_file_name='kpop_girl_group_artist_info',
+            account_name=azure_blob_account_name,
+            account_key=azure_blob_account_key,
+            container_name=azure_blob_container_name
+        )
+
+        file_path = ArtistTrackScraper.save_json('kpop_girl_group_track_info', kpop_girl_group_track_info)
+        ArtistTrackScraper.upload_to_blob(
             file_path=file_path,
             blob_file_name='kpop_girl_group_track_info',
             account_name=azure_blob_account_name,
@@ -108,9 +123,9 @@ async def kpop_girl_group_tracks_scrape_jobs():
         end_time = time.time()
         scraped_time = end_time - start_time
         
-        print(f'took {scraped_time} seconds to scrape {len(kpop_girl_group_track_info)} tracks and upload to Blob')
+        print(f'took {scraped_time} seconds to scrape {len(kpop_girl_group_artist_info)} artists & {len(kpop_girl_group_track_info)} tracks and upload to Blob')
 
-        return {"message": f"Scraped {len(kpop_girl_group_track_info)} tracks and uploaded to Blob successfully!"}
+        return {"message": f"Scraped {len(kpop_girl_group_artist_info)} artists & {len(kpop_girl_group_track_info)} tracks and uploaded to Blob successfully!"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

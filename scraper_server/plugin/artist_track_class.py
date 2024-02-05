@@ -5,7 +5,7 @@ import aiohttp
 import json
 
 
-class ArtistTopTrackScraper:
+class ArtistTrackScraper:
     kpop_girl_group_category_dict = {
         'EXID': '1xs6WFotNQSXweo0GXrS0O',
         'TWICE': '7n2Ycct7Beij7Dj7meI4X0',
@@ -25,6 +25,7 @@ class ArtistTopTrackScraper:
         'New Jeans': '6HvZYsbFfjnjFrWF950C9d'
     }
 
+
     def __init__(self, base_url, artist_name, artist_id, country_code, client_id, client_secret):
         self.base_url = base_url
         self.artist_name = artist_name
@@ -33,6 +34,7 @@ class ArtistTopTrackScraper:
         self.client_id = client_id
         self.client_secret = client_secret
         self.access_token = ''
+        self.kpop_girl_group_artist_info = []
         self.kpop_girl_group_track_info = []
 
 
@@ -65,6 +67,26 @@ class ArtistTopTrackScraper:
             data = json.loads(response_text)
 
             return data
+
+
+    async def get_artist_info(self, session):
+        artist_info_url = f'{self.base_url}/artists/{self.artist_id}'
+
+        result = await self.fetch_data_from_api(
+            session,
+            None,
+            artist_info_url
+        )
+
+        val = {
+            'group_id': self.artist_id,
+            'group_name': self.artist_name,
+            'followers': result['followers']['total'],
+            'group_genres': result['genres'],
+            'group_popularity': result['popularity']
+        }
+
+        self.kpop_girl_group_artist_info.append(val)
 
 
     async def get_track_info_from_artist_top_tracks(self, session):
@@ -101,9 +123,10 @@ class ArtistTopTrackScraper:
         await self.fetch_api_token()
         
         async with aiohttp.ClientSession() as session:
+            await self.get_artist_info(session)
             await self.get_track_info_from_artist_top_tracks(session)
 
-        return self.kpop_girl_group_track_info
+        return self.kpop_girl_group_artist_info, self.kpop_girl_group_track_info
 
 
     @staticmethod
