@@ -49,7 +49,6 @@ with DAG(
         endpoint='/api/v1/scrape-top50-playlist',
         method='GET',
         headers={'Content-Type': 'application/json'},
-        timeout=90,
         response_check=lambda response: handle_response(response),
     dag=dag,
     )

@@ -49,7 +49,6 @@ with DAG(
         endpoint='/api/v1/scrape-kpop-girl-group-tracks',
         method='GET',
         headers={'Content-Type': 'application/json'},
-        timeout=60,
         response_check=lambda response: handle_response(response),
     dag=dag,
     )
