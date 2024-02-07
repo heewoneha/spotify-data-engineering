@@ -9,9 +9,10 @@ def handle_response(response):
     logging.info(response.text)
     if response.status_code == 200:
         logging.info(response.json())
+        return True
     else:
         logging.info(response.text)
-        raise ValueError('API call failed: ' + response.text)
+        return False
 
 
 default_args = {
