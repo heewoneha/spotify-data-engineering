@@ -23,13 +23,14 @@ default_args = {
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
     'max_active_tasks': 2,
+    'catchup': False,
 }
 
 with DAG(
     'spotify_kpop_girl_group_api_scraper_dag',
     default_args=default_args,
     description='A async user spotify_kpop_girl_group_scraper_api call dag',
-    start_date=datetime(2024, 2, 7),
+    start_date=datetime(2024, 2, 9),
     schedule_interval='0 1 * * *',
 )as dag:
 

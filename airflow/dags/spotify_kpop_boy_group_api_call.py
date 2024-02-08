@@ -27,11 +27,11 @@ default_args = {
 }
 
 with DAG(
-    'spotify_top50_playlist_api_scraper_dag',
+    'spotify_kpop_boy_group_api_scraper_dag',
     default_args=default_args,
-    description='A async user spotify_top50_playlist_scraper_api call dag',
+    description='A async user spotify_kpop_boy_group_scraper_api call dag',
     start_date=datetime(2024, 2, 9),
-    schedule_interval='0 0 * * *',
+    schedule_interval='0 2 * * *',
 )as dag:
 
     task_http_sensor_check = HttpSensor(
@@ -46,9 +46,9 @@ with DAG(
     )
     
     task_get_op = SimpleHttpOperator(
-        task_id='get_spotify_top50_playlist_api',
+        task_id='get_spotify_kpop_boy_group_api',
         http_conn_id='spotify_scraper_api',
-        endpoint='/api/v1/scrape-top50-playlist',
+        endpoint='/api/v1/scrape-kpop-boy-group-tracks',
         method='GET',
         headers={'Content-Type': 'application/json'},
         response_check=lambda response: handle_response(response),
