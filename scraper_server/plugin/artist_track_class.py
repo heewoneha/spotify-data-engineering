@@ -1,11 +1,35 @@
-from base64 import b64encode
-from datetime import date
-from azure.storage.blob import BlobServiceClient
+from plugin.base_class import BaseScraper
 import aiohttp
-import json
 
 
-class ArtistTrackScraper:
+class ArtistTrackScraper(BaseScraper):
+    kpop_boy_group_category_dict = {
+        'BTOB': '2hcsKca6hCfFMwwdbFvenJ',
+        'EXO': '3cjEqqelV9zb4BYE3qDQ4O',
+        'BTS': '3Nrfpe0tUJi4K4DXYWgMUX',
+        'WINNER': '5DuzBeOgFwViFcv00Q5PFb',
+        'JANNABI': '2SY6OktZyMLdOnscX3DCyS',
+        'MONSTA X': '4TnGh5PKbSjpYqpIdlW5nz',
+        'N.Flying': '2ZmXexIJAD7PgABrj0qQRb',
+        'SEVENTEEN': '7nqOGRxlXj7N2JYbgNEjYH',
+        'DAY6': '5TnQc2N1iKlFjYD7CPGvFc',
+        'MeloMance': '6k4r73Wq8nhkCDoUsECL1e',
+        'NCT': '48eO052eSDcn8aTxiv6QaG',
+        'NCT 127': '7f4ignuCJhLXfZ9giKT7rH',
+        'NCT U': '3paGCCtX1Xr4Gx53mSeZuQ',
+        'NCT DREAM': '1gBUSTR3TyDdTVFIaQnc02',
+        'NCT DOJAEJUNG': '0W0w607z3JEA1vXLz9FVGw',
+        'SF9': '7LOmc7gyMVMOWF8qwEdn2X',
+        'THE BOYZ': '0CmvFWTX9zmMNCUi6fHtAx',
+        'Stray Kids': '2dIgFjalVxs4ThymZ67YCE',
+        'ATEEZ': '68KmkJeZGfwe1OUaivBa2L',
+        'TOMORROW X TOGETHER': '0ghlgldX5Dd6720Q3qFyQB',
+        'TREASURE': '3KonOYiLsU53m4yT7gNotP',
+        'ENHYPEN': '5t5FqBwTcgKTaWmfEbwQY9',
+        'ZEROBASEONE': '7cjg7EkeZy3OI5o9Qthc6n',
+        'RIIZE': '2jOm3cYujQx6o1dxuiuqaX'
+    }
+
     kpop_girl_group_category_dict = {
         'EXID': '1xs6WFotNQSXweo0GXrS0O',
         'TWICE': '7n2Ycct7Beij7Dj7meI4X0',
@@ -27,55 +51,21 @@ class ArtistTrackScraper:
 
 
     def __init__(self, base_url, artist_name, artist_id, country_code, client_id, client_secret):
-        self.base_url = base_url
+        super().__init__(base_url, client_id, client_secret)
         self.artist_name = artist_name
         self.artist_id = artist_id
         self.country_code = country_code
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.access_token = ''
-        self.kpop_girl_group_artist_info = []
-        self.kpop_girl_group_track_info = []
-
-
-    async def fetch_api_token(self):
-        auth_url = 'https://accounts.spotify.com/api/token'
-        credentials = b64encode(f'{self.client_id}:{self.client_secret}'.encode()).decode('utf-8')
-        auth_data = {'grant_type': 'client_credentials'}
-        auth_headers = {'Authorization': f'Basic {credentials}'}
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(auth_url, data=auth_data, headers=auth_headers) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    access_token = data['access_token']
-                    self.access_token = access_token
-                else:
-                    print(f'Access Token Error {response.status}, {await response.text()}')
-
-
-    async def fetch_data_from_api(self, session, params, api_url):
-        headers = {
-            'Authorization': f'Bearer {self.access_token}'
-        }
-
-        async with session.get(api_url, headers=headers, params=params) as response:
-            if response.status != 200:
-                print(f'Error occurred: {response.status} {response}')
-                return {}
-            response_text = await response.text(encoding='utf-8')
-            data = json.loads(response_text)
-
-            return data
+        self.group_artist_info = []
+        self.group_track_info = []
 
 
     async def get_artist_info(self, session):
         artist_info_url = f'{self.base_url}/artists/{self.artist_id}'
 
         result = await self.fetch_data_from_api(
-            session,
-            None,
-            artist_info_url
+            session=session,
+            params=None,
+            api_url=artist_info_url
         )
 
         val = {
@@ -86,7 +76,7 @@ class ArtistTrackScraper:
             'group_popularity': result['popularity']
         }
 
-        self.kpop_girl_group_artist_info.append(val)
+        self.group_artist_info.append(val)
 
 
     async def get_track_info_from_artist_top_tracks(self, session):
@@ -97,9 +87,9 @@ class ArtistTrackScraper:
         }
 
         result = await self.fetch_data_from_api(
-            session,
-            params,
-            artist_top_tracks_url
+            session=session,
+            params=params,
+            api_url=artist_top_tracks_url
         )
 
         track_info = []
@@ -116,7 +106,7 @@ class ArtistTrackScraper:
             }
             track_info.append(val)
 
-        self.kpop_girl_group_track_info.extend(track_info)
+        self.group_track_info.extend(track_info)
 
 
     async def main(self):
@@ -126,37 +116,4 @@ class ArtistTrackScraper:
             await self.get_artist_info(session)
             await self.get_track_info_from_artist_top_tracks(session)
 
-        return self.kpop_girl_group_artist_info, self.kpop_girl_group_track_info
-
-
-    @staticmethod
-    def save_json(file_name, results):
-        file_path = f'./static/{file_name}.json'
-        result = {'results': results}
-
-        with open(file_path, 'w', encoding='utf-8') as json_file:
-            json.dump(result, json_file, ensure_ascii=False, indent=4)
-        
-        return file_path
-    
-
-    @staticmethod
-    def upload_to_blob(file_path, blob_file_name, account_name, account_key, container_name):
-        today = date.today()
-        year = str(today.year)
-        month = str(today.month).zfill(2)
-        day = str(today.day).zfill(2)
-
-        blob_path = f'group/year={year}/month={month}/day={day}/{blob_file_name}.json'
-
-        blob_service_client = BlobServiceClient(
-            account_url=f"https://{account_name}.blob.core.windows.net",
-            credential=account_key
-        )
-
-        container_client = blob_service_client.get_container_client(container_name)
-
-        with open(file_path, 'rb') as data:
-            container_client.upload_blob(name=blob_path, data=data)
-
-        print(f'End Upload to {container_name} container {blob_path} blob.')
+        return self.group_artist_info, self.group_track_info

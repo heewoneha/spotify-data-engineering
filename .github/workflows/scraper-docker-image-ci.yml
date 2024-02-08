@@ -2,7 +2,7 @@ name: Scraper Docker Image CI
 
 on:
   push:
-    branches: [ "feat/scraper" ]
+    branches: [ "refactor/scraper" ]
 #  pull_request:
 #    branches: [ "main" ]
 

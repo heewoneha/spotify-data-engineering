@@ -1,50 +1,13 @@
-from base64 import b64encode
-from datetime import date
-from azure.storage.blob import BlobServiceClient
+from plugin.base_class import BaseScraper
 import aiohttp
 import asyncio
-import json
 
 
-class PlaylistScraper:
+class PlaylistScraper(BaseScraper):
     def __init__(self, base_url, playlist_uri, client_id, client_secret):
-        self.base_url = base_url
+        super().__init__(base_url, client_id, client_secret)
         self.playlist_uri = playlist_uri
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.access_token = ''
         self.track_audio_features = []
-
-
-    async def fetch_api_token(self):
-        auth_url = 'https://accounts.spotify.com/api/token'
-        credentials = b64encode(f'{self.client_id}:{self.client_secret}'.encode()).decode('utf-8')
-        auth_data = {'grant_type': 'client_credentials'}
-        auth_headers = {'Authorization': f'Basic {credentials}'}
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(auth_url, data=auth_data, headers=auth_headers) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    access_token = data['access_token']
-                    self.access_token = access_token
-                else:
-                    print(f'Access Token Error {response.status}, {await response.text()}')
-
-
-    async def fetch_data_from_api(self, session, api_url):
-        headers = {
-            'Authorization': f'Bearer {self.access_token}'
-        }
-
-        async with session.get(api_url, headers=headers) as response:
-            if response.status != 200:
-                print(f'Error occurred: {response.status} {response}')
-                return {}
-            response_text = await response.text(encoding='utf-8')
-            data = json.loads(response_text)
-
-            return data
 
 
     async def get_track_lists_from_playlist(self, session):
@@ -52,8 +15,9 @@ class PlaylistScraper:
 
         track_ids = []
         result = await self.fetch_data_from_api(
-            session,
-            top50_playlist_url
+            session=session,
+            params=None,
+            api_url=top50_playlist_url
         )
         track_ids.extend([track['track']['id'] for track in result['items']])
 
@@ -77,8 +41,9 @@ class PlaylistScraper:
         track_info_url = f'{self.base_url}/audio-features/{track_id}'
         
         result = await self.fetch_data_from_api(
-            session,
-            track_info_url
+            session=session,
+            params=None,
+            api_url=track_info_url
         )
 
         val = {
@@ -111,36 +76,3 @@ class PlaylistScraper:
             await asyncio.gather(*tasks)
 
         return track_info, self.track_audio_features
-
-
-    @staticmethod
-    def save_json(file_name, results):
-        file_path = f'./static/{file_name}.json'
-        result = {'results': results}
-
-        with open(file_path, 'w', encoding='utf-8') as json_file:
-            json.dump(result, json_file, ensure_ascii=False, indent=4)
-        
-        return file_path
-    
-
-    @staticmethod
-    def upload_to_blob(file_path, blob_file_name, account_name, account_key, container_name):
-        today = date.today()
-        year = str(today.year)
-        month = str(today.month).zfill(2)
-        day = str(today.day).zfill(2)
-
-        blob_path = f'top50/year={year}/month={month}/day={day}/{blob_file_name}.json'
-
-        blob_service_client = BlobServiceClient(
-            account_url=f"https://{account_name}.blob.core.windows.net",
-            credential=account_key
-        )
-
-        container_client = blob_service_client.get_container_client(container_name)
-
-        with open(file_path, 'rb') as data:
-            container_client.upload_blob(name=blob_path, data=data)
-
-        print(f'End Upload to {container_name} container {blob_path} blob.')
