@@ -23,9 +23,15 @@ jobs:
         AZURE_BLOB_ACCOUNT_NAME: ${{secrets.AZURE_BLOB_ACCOUNT_NAME}}
         AZURE_BLOB_ACCOUNT_KEY: ${{secrets.AZURE_BLOB_ACCOUNT_KEY}}
         AZURE_BLOB_CONTAINER_NAME: ${{secrets.AZURE_BLOB_CONTAINER_NAME}}
+        SERVER_NAME: ${{secrets.SERVER_NAME}}
+        DATABASE_NAME: ${{secrets.DATABASE_NAME}}
+        ADMIN_USER_NAME: ${{secrets.ADMIN_USER_NAME}}
+        ADMIN_PASSWORD: ${{secrets.ADMIN_PASSWORD}}
+        SSL_MODE: ${{secrets.SSL_MODE}}
+        SCHEMA_NAME: ${{secrets.SCHEMA_NAME}}
       run: |
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: Build the Docker image
-      run: docker build --tag ${{secrets.DOCKER_USER}}/scraper:latest -f scraper_server/Dockerfile .
+      run: docker build --tag ${{secrets.DOCKER_USER}}/scraper:latest -f backend_server/Dockerfile .
     - name: docker push
       run: docker push ${{secrets.DOCKER_USER}}/scraper:latest

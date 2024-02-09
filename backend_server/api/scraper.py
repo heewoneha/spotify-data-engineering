@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import HTTPException, APIRouter
 from fastapi.staticfiles import StaticFiles
 from plugin.playlist_class import PlaylistScraper
 from plugin.artist_track_class import ArtistTrackScraper
