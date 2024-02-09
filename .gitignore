@@ -1,4 +1,4 @@
-scraper_server/static/*
+backend_server/static/*
 __pycache__/
 .env
 airflow/logs/*
