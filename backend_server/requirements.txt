@@ -10,7 +10,7 @@ exceptiongroup
 fastapi
 h11
 idna
-psycopg2
+psycopg2-binary
 pydantic
 pydantic_core
 requests
