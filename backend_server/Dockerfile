@@ -6,13 +6,13 @@ ENV FastAPI_ENV=production
 
 WORKDIR /app
 
-COPY scraper_server/requirements.txt .
+COPY backend_server/requirements.txt .
 RUN pip install --upgrade pip && \
     pip install -r ./requirements.txt
 
 RUN if [ ! -d "/static" ]; then mkdir /static; fi
 
-COPY scraper_server/. .
+COPY backend_server/. .
 
 EXPOSE 8000
 
