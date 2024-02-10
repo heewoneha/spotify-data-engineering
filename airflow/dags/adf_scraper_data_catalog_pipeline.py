@@ -13,6 +13,8 @@ with DAG(
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
         "azure_data_factory_conn_id": "adf_conn",
+        "factory_name": "cosmicETL",
+        "resource_group_name": "airflow",
     },
     default_view="graph",
 ) as dag:
