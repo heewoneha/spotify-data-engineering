@@ -46,7 +46,7 @@ class ArtistTrackScraper(BaseScraper):
         'NMIXX': '28ot3wh4oNmoFOdVajibBl',
         'VIVIZ': '7Lq3yAtwi0Z7zpxEwbQQNZ',
         'LE SSERAFIM': '4SpbR6yFEvexJuaBpgAU5p',
-        'New Jeans': '6HvZYsbFfjnjFrWF950C9d'
+        'NewJeans': '6HvZYsbFfjnjFrWF950C9d'
     }
 
 
