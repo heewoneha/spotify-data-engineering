@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 
 
 with DAG(
-    dag_id="azure_data_factory_run_scraper_data_catalog_pipeline",
-    start_date=datetime(2024, 2, 10),
+    dag_id="azure_data_factory_run_data_catalog_pipelines",
+    start_date=datetime(2024, 2, 11),
     schedule="30 2 * * *",
     catchup=False,
     default_args={
@@ -21,9 +21,14 @@ with DAG(
     begin = EmptyOperator(task_id="begin")
     end = EmptyOperator(task_id="end")
 
-    run_pipeline: BaseOperator = AzureDataFactoryRunPipelineOperator(
-        task_id="run_pipeline",
+    run_pipeline1: BaseOperator = AzureDataFactoryRunPipelineOperator(
+        task_id="run_pipeline1",
         pipeline_name="scraper_data_catalog",
     )
 
-    begin >> run_pipeline >> end
+    run_pipeline2: BaseOperator = AzureDataFactoryRunPipelineOperator(
+        task_id="run_pipeline2",
+        pipeline_name="preprocessing_data_catalog",
+    )
+
+    begin >> run_pipeline1 >> run_pipeline2 >> end
