@@ -46,14 +46,14 @@ def create_df_from_catalog(table_name):
     url = f"jdbc:postgresql://{database_host}:{database_port}/{database_name}"
     
     df = (spark.read
-        .format("jdbc")
-        .option("driver", driver)
-        .option("url", url)
-        .option("dbtable", f'{schema}.{table_name}')
-        .option("user", user)
-        .option("password", password)
-        .load()
-    )
+          .format("jdbc")
+          .option("driver", driver)
+          .option("url", url)
+          .option("dbtable", f'{schema}.{table_name}')
+          .option("user", user)
+          .option("password", password)
+          .load()
+          )
     return df
 
 def save_df(title, df):
