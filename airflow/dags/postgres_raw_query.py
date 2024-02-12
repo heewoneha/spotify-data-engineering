@@ -26,7 +26,7 @@ dag = DAG(
     'postgres_making_raw_schema_tables',
     default_args=default_args,
     description='A DAG to execute PostgreSQL query',
-    schedule_interval=timedelta(days=1),
+    schedule="30 3 * * *",
     start_date=datetime(2024, 2, 12),
     catchup=False,
     template_searchpath='/opt/airflow/dags/sqls/postgres',
