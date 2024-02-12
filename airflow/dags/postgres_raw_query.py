@@ -1,5 +1,5 @@
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.operators.python_operator import PythonOperator
 from datetime import datetime, timedelta
@@ -32,8 +32,8 @@ dag = DAG(
     template_searchpath='/opt/airflow/dags/sqls/postgres',
 )
 
-begin = EmptyOperator(task_id="begin")
-end = EmptyOperator(task_id="end")
+begin = DummyOperator(task_id="begin")
+end = DummyOperator(task_id="end")
 
 raw_table_list = [
     'daily_group_artist_spotify_popularity',
@@ -80,4 +80,5 @@ def process_raw_table_queries(table_list):
 process_raw_table_queries(raw_table_list)
 
 
-begin >> dimension_drop_tasks >> dimension_create_tasks >> end
+begin >> dimension_drop_tasks
+dimension_create_tasks >> end
