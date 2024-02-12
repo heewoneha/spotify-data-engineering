@@ -11,6 +11,7 @@ with DAG(
     catchup=False,
     default_args={
         "retries": 1,
+        'owner': 'airflow',
         "retry_delay": timedelta(minutes=5),
         "azure_data_factory_conn_id": "adf_conn",
         "factory_name": "cosmicETL",
