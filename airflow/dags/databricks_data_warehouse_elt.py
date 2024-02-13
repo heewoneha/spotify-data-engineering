@@ -1,6 +1,6 @@
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
-from airflow.operators.databricks_operator import DatabricksSqlOperator
+from airflow.providers.databricks.operators.databricks_sql import DatabricksSqlOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.models import Variable
 from datetime import datetime, timedelta
