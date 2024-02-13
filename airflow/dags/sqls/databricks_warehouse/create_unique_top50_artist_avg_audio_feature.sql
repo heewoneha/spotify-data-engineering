@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS analytics.unique_top50_artist_avg_audio_feature AS (
         AVG(AF.tempo) AS avg_tempo,
         AVG(AF.loudness) AS avg_loudness,
         AVG(AF.valence) AS avg_valence,
-        AVG(AF.loudness) AS avg_loudness,
         AVG(AF.speechiness) AS avg_speechiness
     FROM postgres_raw_raw.top50_audio_feature AS AF
     JOIN postgres_raw_raw.top50_track_information AS TI
