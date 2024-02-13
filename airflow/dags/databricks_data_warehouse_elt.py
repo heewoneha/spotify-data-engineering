@@ -62,7 +62,7 @@ drop_unique_group_artist_task = DatabricksSqlOperator(
     databricks_conn_id='databricks_conn',
     sql_endpoint_name=databricks_sql_endpoint,
     task_id='run_dw_drop_unique_group_artist',
-    sql='DROP TABLE IF EXISTS {SCHEMA}.unique_group_artist',
+    sql=f'DROP TABLE IF EXISTS {SCHEMA}.unique_group_artist',
     dag=dag,
 )
 
