@@ -27,7 +27,8 @@ class ArtistTrackScraper(BaseScraper):
         'TREASURE': '3KonOYiLsU53m4yT7gNotP',
         'ENHYPEN': '5t5FqBwTcgKTaWmfEbwQY9',
         'ZEROBASEONE': '7cjg7EkeZy3OI5o9Qthc6n',
-        'RIIZE': '2jOm3cYujQx6o1dxuiuqaX'
+        'RIIZE': '2jOm3cYujQx6o1dxuiuqaX',
+        'TWS': '4GgBKgxhc649frZDHcXIEz'
     }
 
     kpop_girl_group_category_dict = {
@@ -46,7 +47,8 @@ class ArtistTrackScraper(BaseScraper):
         'NMIXX': '28ot3wh4oNmoFOdVajibBl',
         'VIVIZ': '7Lq3yAtwi0Z7zpxEwbQQNZ',
         'LE SSERAFIM': '4SpbR6yFEvexJuaBpgAU5p',
-        'NewJeans': '6HvZYsbFfjnjFrWF950C9d'
+        'NewJeans': '6HvZYsbFfjnjFrWF950C9d',
+        'BABYMONSTER': '1SIocsqdEefUTE6XKGUiVS'
     }
 
 
