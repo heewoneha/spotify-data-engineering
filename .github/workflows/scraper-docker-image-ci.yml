@@ -2,7 +2,7 @@ name: Scraper Docker Image CI
 
 on:
   push:
-    branches: [ "refactor/scraper" ]
+    branches: [ "refactor/scraper-haemi" ]
 #  pull_request:
 #    branches: [ "main" ]
 
