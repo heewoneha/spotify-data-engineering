@@ -1,12 +1,12 @@
 from fastapi import HTTPException, APIRouter
 import psycopg2
 import os
-from dbkit import TOP50_TRACKS_INFO_TABLE_CREATE_SQL, \
+from api.dbkit import TOP50_TRACKS_INFO_TABLE_CREATE_SQL, \
         TOP50_AUDIO_FEATURES_TABLE_CREATE_SQL, \
         KPOP_BOY_GROUP_ARTIST_INFO_TABLE_CREATE_SQL, \
         KPOP_GIRL_GROUP_ARTIST_INFO_TABLE_CREATE_SQL, \
         KPOP_BOY_GROUP_TRACK_INFO_TABLE_CREATE_SQL, \
-        KPOP_GIRL_FROUP_TRACK_INFO_TABLE_CREATE_SQL, \
+        KPOP_GIRL_GROUP_TRACK_INFO_TABLE_CREATE_SQL, \
         KPOP_GROUP_ARTIST_INFO_TABLE_CREATE_SQL, \
         KPOP_GROUP_TRACK_INFO_TABLE_CREATE_SQL
         
@@ -42,7 +42,7 @@ def execute_data_factory_scraper_data_catalog_query():
 
         cursor.execute(KPOP_BOY_GROUP_TRACK_INFO_TABLE_CREATE_SQL)
 
-        cursor.execute(KPOP_GIRL_FROUP_TRACK_INFO_TABLE_CREATE_SQL)
+        cursor.execute(KPOP_GIRL_GROUP_TRACK_INFO_TABLE_CREATE_SQL)
 
         conn.commit()
         cursor.close()

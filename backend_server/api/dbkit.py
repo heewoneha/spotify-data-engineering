@@ -29,7 +29,7 @@ TOP50_AUDIO_FEATURES_TABLE_CREATE_SQL = "CREATE TABLE data_catalog.top50_audio_f
                 day CHAR(2) NOT NULL \
             );"
 
-KPOP_BOY_GROUP_ARTIST_INFO_TABLE_CREATE_SQL ="CREATE TABLE data_catalog.kpop_boy_group_artist_info( \
+KPOP_BOY_GROUP_ARTIST_INFO_TABLE_CREATE_SQL = "CREATE TABLE data_catalog.kpop_boy_group_artist_info( \
                 group_id VARCHAR(50) NOT NULL, \
                 group_name VARCHAR(20) NOT NULL, \
                 followers INT NOT NULL, \
@@ -65,7 +65,7 @@ KPOP_BOY_GROUP_TRACK_INFO_TABLE_CREATE_SQL = "CREATE TABLE data_catalog.kpop_boy
                 day CHAR(2) NOT NULL \
             );"
 
-KPOP_GIRL_FROUP_TRACK_INFO_TABLE_CREATE_SQL ="CREATE TABLE data_catalog.kpop_girl_group_track_info( \
+KPOP_GIRL_GROUP_TRACK_INFO_TABLE_CREATE_SQL = "CREATE TABLE data_catalog.kpop_girl_group_track_info( \
                 track_id VARCHAR(50) NOT NULL, \
                 track_name VARCHAR(255) NOT NULL, \
                 group_id VARCHAR(50) NOT NULL, \
@@ -79,7 +79,7 @@ KPOP_GIRL_FROUP_TRACK_INFO_TABLE_CREATE_SQL ="CREATE TABLE data_catalog.kpop_gir
                 day CHAR(2) NOT NULL \
             );"
 
-KPOP_GROUP_ARTIST_INFO_TABLE_CREATE_SQL="CREATE TABLE data_catalog.kpop_group_artist_info( \
+KPOP_GROUP_ARTIST_INFO_TABLE_CREATE_SQL = "CREATE TABLE data_catalog.kpop_group_artist_info( \
                 group_id VARCHAR(50) NOT NULL, \
                 group_name VARCHAR(20) NOT NULL, \
                 followers INT NOT NULL, \
@@ -91,7 +91,7 @@ KPOP_GROUP_ARTIST_INFO_TABLE_CREATE_SQL="CREATE TABLE data_catalog.kpop_group_ar
                 day CHAR(2) NOT NULL \
             );"
 
-KPOP_GROUP_TRACK_INFO_TABLE_CREATE_SQL="CREATE TABLE data_catalog.kpop_group_track_info( \
+KPOP_GROUP_TRACK_INFO_TABLE_CREATE_SQL = "CREATE TABLE data_catalog.kpop_group_track_info( \
                 track_id VARCHAR(50) NOT NULL, \
                 track_name VARCHAR(255) NOT NULL, \
                 group_id VARCHAR(50) NOT NULL, \
@@ -104,4 +104,3 @@ KPOP_GROUP_TRACK_INFO_TABLE_CREATE_SQL="CREATE TABLE data_catalog.kpop_group_tra
                 month CHAR(2) NOT NULL, \
                 day CHAR(2) NOT NULL \
             );"
-
